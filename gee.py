@@ -239,15 +239,19 @@ def block(  ):
 	if tok == ":":
 		string += tok
 		tokens.next()
+		tok = tokens.peek()
 		if tok = ";":
 			string += tok
 			tokens.next()
+			tok = tokens.peek()
 			if tok == "@":
 				string += tok
 				tokens.next()
+				tok = tokens.peek()
 					if type(tok) == list:
 						string += str(tok)
 						tokens.next()
+						tok = tokens.peek()
 						if tok = "~":
 							string += tok
 							return String(string)
