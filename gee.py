@@ -248,7 +248,10 @@ def assign(  ):
 		tok = tokens.next()
 		if tok == "=":
 			tok = tokens.next()
-			if tok ==
+			expression = expr()
+			tok = tokens.next()
+			if tok == ";":
+				return String("@=" + String(expression) + ";")
 
 
 def block(  ):
@@ -265,7 +268,6 @@ def block(  ):
 				stmtList = parseStmtList()
 				tok = tokens.next()
 				if tok = "~":
-					tokens.next()
 					return String(":;@" + str(stmtList) + "~")
 
 ################################
