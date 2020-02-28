@@ -241,29 +241,32 @@ def whileStatement(  ):
 
 def assign(  ):
     """ assign = ident "=" expression  eoln """
+	tok = tokens.peek()
+	if debug: print("assign: ", tok)
+
+	if tok == "@":
+		tok = tokens.next()
+		if tok == "=":
+			tok = tokens.next()
+			if tok ==
+
 
 def block(  ):
     """ block = ":" eoln indent stmtList undent """
 	tok = tokens.peek( )
 	if debug: print ("block: ", tok)
 
-	string = ""
 	if tok == ":":
-		string += tok
 		tok = tokens.next()
 		if tok = ";":
-			string += tok
 			tok = tokens.next()
 			if tok == "@":
-				string += tok
 				tok = tokens.next()
-					if type(tok) == list:
-						string += str(tok)
-						tok = tokens.next()
-						if tok = "~":
-							string += tok
-							tokens.next()
-							return String(string)
+				stmtList = parseStmtList()
+				tok = tokens.next()
+				if tok = "~":
+					tokens.next()
+					return String(":;@" + str(stmtList) + "~")
 
 ################################
 
