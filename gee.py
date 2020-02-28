@@ -174,12 +174,14 @@ def expression( ):
 def parseStmtList(  ):
     # create a list of statements, put into a subclass of Statement, return an object containing the list
     """ gee = { Statement } """
+	stmtList = []
     tok = tokens.peek( )
     while tok is not None:
         # need to store each statement in a list
         ast = parseStmt(tokens)
         print (str(ast))
-    return ast
+		stmtList.append(ast)
+    return stmtList
 
 def parseStatement(  ):
     """ statement = ifStatement |  whileStatement  |  assign """
@@ -279,7 +281,7 @@ class Lexer :
 	lexRules = literal + "|" + special + "|" + relational + "|" + arithmetic + "|" + identifier
 	
 	def __init__( self, text ) :
-		self.tokens = re.findall( Lexer.lexRules, text )
+		self.tokens = re.findall( Lexer.lexRules, text ) #re.findall(pattern, string) - returns all non-overlapping matches
 		self.position = 0
 		self.indent = [ 0 ]
 	
