@@ -95,10 +95,12 @@ def factor( ):
 		expr = Number(tok)
 		tokens.next( )
 		return expr
+
 	if re.match(Lexer.string, tok):
 		expr = String(tok)
 		tokens.next()
 		return expr
+
     if re.match(Lexer.identifier, tok):
         expr = VarRef(tok)
         tokens.next( )
@@ -203,25 +205,35 @@ def parseStmtList(  ):
     while tok is not None:
         # need to store each statement in a list
 		stmtList.append(parseStatement(tok))
+		tok = tokens.next()
     return stmtList
 
 def parseStatement(token): # classifies the token as a subclass of statement.
     """ statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
 	if token == "if":
-		return parseIfStatement(token)
+		return parseIfStatement()
 	elif token == "while":
-		return parseWhileStatement(token)
+		return parseWhileStatement()
 	elif re.match(Lexar.indentifier):
-		return parseAssign(token)
+		return parseAssign()
 	else:
 		error("Invalid statement")
 		return
 
-def ifStatement(token):
+def ifStatement():
     """ ifStatement = "if" expression block   [ "else" block ] """
-	if token = "if":
-		expr = expression()
+
+	tok = tokens.peek()
+	if debug: print("ifstatement: ", tok))
+	if tok == "if":
+		tokens.next()
+		expr = expr()
+		tokens.next()
 		if_block = block()
+		tok = tokens.next()
+	if tok == "else":
+		else_block = block()
+	return ifstatement(expr, if_block, else_block)
 
 
 def whileStatement(  ):
@@ -238,22 +250,19 @@ def block(  ):
 	string = ""
 	if tok == ":":
 		string += tok
-		tokens.next()
-		tok = tokens.peek()
+		tok = tokens.next()
 		if tok = ";":
 			string += tok
-			tokens.next()
-			tok = tokens.peek()
+			tok = tokens.next()
 			if tok == "@":
 				string += tok
-				tokens.next()
-				tok = tokens.peek()
+				tok = tokens.next()
 					if type(tok) == list:
 						string += str(tok)
-						tokens.next()
-						tok = tokens.peek()
+						tok = tokens.next()
 						if tok = "~":
 							string += tok
+							tokens.next()
 							return String(string)
 
 ################################
