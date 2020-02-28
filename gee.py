@@ -8,6 +8,28 @@ debug = True
 dict = { }
 tokens = [ ]
 
+class Statement(object ):
+	def __str__(self):
+		return ""
+
+class WhileStatement(Statement):
+	def __init__(self, expr, block):
+		self.expr = expr
+		self.block = block
+
+class IfStatement(Statement):
+	def __init__(self, expr, if_block, else_block):
+		self.expr = expr
+		self.if_block = if_block
+		self.else_block = else_block
+
+	def __str__(self):
+		return "if" + str(if_block) + "else" + str(else_block)
+
+class ElseStatement(Statement):
+	def __init__(self, identifier, expr):
+		self.identifier = identifier
+		self.expr = expr
 
 #  Expression class and its subclasses
 class Expression( object ):
@@ -88,6 +110,7 @@ def factor( ):
 		tokens.peek( )
 		tok = match(")")
 		return expr
+
 	error("Invalid operand")
 	return
 
@@ -124,6 +147,21 @@ def addExpr( ):
 
 ##### BUILD PARSE ROUTINES #####
 
+def expr( ):
+	""" expression = andExpr { "or" andExpr } """
+
+	tok = tokens.peek( )
+	if debug: print ("expression: ", tok)
+	left = andExpr( )
+	tok = tokens.peek( )
+	while tok == "or":
+		tokens.next()
+		right = andExpr( )
+		left = BinaryExpr(tok, left, right)
+		tok = tokens.peek( )
+	return left
+
+
 def relationalExpr( ):
 	""" relationalExpr = addExpr [ relation addExpr ] """
 	""" relation    = "==" | "!=" | "<" | "<=" | ">" | ">=" """
@@ -153,20 +191,6 @@ def andExpr( ):
 		tok = tokens.peek( )
 	return left
 
-def expression( ):
-	""" expression = andExpr { "or" andExpr } """
-
-	tok = tokens.peek( )
-	if debug: print ("expression: ", tok)
-	left = andExpr( )
-	tok = tokens.peek( )
-	while tok == "or":
-		tokens.next()
-		right = andExpr( )
-		left = BinaryExpr(tok, left, right)
-		tok = tokens.peek( )
-	return left
-
 ################################
 
 ##### BUILD PARSE ROUTINES #####
@@ -178,58 +202,57 @@ def parseStmtList(  ):
     tok = tokens.peek( )
     while tok is not None:
         # need to store each statement in a list
-        ast = parseStmt(tokens)
-        print (str(ast))
-		stmtList.append(ast)
+		stmtList.append(parseStatement(tok))
     return stmtList
 
-def parseStatement(  ):
-    """ statement = ifStatement |  whileStatement  |  assign """
-    tok = tokens.peek( )
-    while tok is not None:
-        # need to store each statement in a list
-        ast = parseStmt(tokens)
-        print (str(ast))
-    return ast
+def parseStatement(token): # classifies the token as a subclass of statement.
+    """ statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
+	if token == "if":
+		return parseIfStatement(token)
+	elif token == "while":
+		return parseWhileStatement(token)
+	elif re.match(Lexar.indentifier):
+		return parseAssign(token)
+	else:
+		error("Invalid statement")
+		return
 
-def parseAssign(  ):
-    """ assign = ident "=" expression  eoln """
-    tok = tokens.peek( )
-    while tok is not None:
-        # need to store each statement in a list
-        ast = parseStmt(tokens)
-        print (str(ast))
-    return ast
-
-def parseIfStatement(  ):
+def ifStatement(token):
     """ ifStatement = "if" expression block   [ "else" block ] """
-    tok = tokens.peek( )
-    while tok is not None:
-        # need to store each statement in a list
-        ast = parseStmt(tokens)
-        print (str(ast))
-    return ast
+	if token = "if":
+		expr = expression()
+		if_block = block()
 
-def parseWhileStatement(  ):
+
+def whileStatement(  ):
     """ whileStatement = "while"  expression  block """
-    tok = tokens.peek( )
-    while tok is not None:
-        # need to store each statement in a list
-        ast = parseStmt(tokens)
-        print (str(ast))
-    return ast
 
-def parseBlock(  ):
+def assign(  ):
+    """ assign = ident "=" expression  eoln """
+
+def block(  ):
     """ block = ":" eoln indent stmtList undent """
-    tok = tokens.peek( )
-    while tok is not None:
-        # need to store each statement in a list
-        ast = parseStmt(tokens)
-        print (str(ast))
-    return ast
+	tok = tokens.peek( )
+	if debug: print ("block: ", tok)
+
+	string = ""
+	if tok == ":":
+		string += tok
+		tokens.next()
+		if tok = ";":
+			string += tok
+			tokens.next()
+			if tok == "@":
+				string += tok
+				tokens.next()
+					if type(tok) == list:
+						string += str(tok)
+						tokens.next()
+						if tok = "~":
+							string += tok
+							return String(string)
 
 ################################
-
 
 def parse( text ) :
 	global tokens
