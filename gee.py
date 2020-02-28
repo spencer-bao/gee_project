@@ -129,7 +129,7 @@ def relationalExpr( ):
 	tok = tokens.peek( )
 	if tok == "==" or tok == "!=" or tok == "<" or tok == "<=" or tok == ">" or tok == ">=":
 		tokens.next()
-		right = term( )
+		right = addExpr( )
 		left = BinaryExpr(tok, left, right)
 		tok = tokens.peek( )
 	return left
@@ -141,9 +141,9 @@ def andExpr( ):
 	if debug: print ("andExpr: ", tok)
 	left = relationalExpr( )
 	tok = tokens.peek( )
-	while tok == "+" or tok == "-":
+	while tok == "and":
 		tokens.next()
-		right = term( )
+		right = relationalExpr( )
 		left = BinaryExpr(tok, left, right)
 		tok = tokens.peek( )
 	return left
@@ -155,9 +155,9 @@ def expression( ):
 	if debug: print ("expression: ", tok)
 	left = andExpr( )
 	tok = tokens.peek( )
-	while tok == "+" or tok == "-":
+	while tok == "or":
 		tokens.next()
-		right = term( )
+		right = andExpr( )
 		left = BinaryExpr(tok, left, right)
 		tok = tokens.peek( )
 	return left
