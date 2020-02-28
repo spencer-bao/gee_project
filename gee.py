@@ -55,14 +55,14 @@ class Number( Expression ):
 ##### BUILD CLASSES #####
 
 class String( Expression ):
-    def __init__(self, string):
+	def __init__(self, string):
 		self.string = string
 		
 	def __str__(self):
 		return str(self.string)
     
 class VarRef( Expression ):
-    def __init__(self, identifier):
+	def __init__(self, identifier):
 		self.identifier = identifier
 		
 	def __str__(self):
@@ -101,10 +101,10 @@ def factor( ):
 		tokens.next()
 		return expr
 
-    if re.match(Lexer.identifier, tok):
-        expr = VarRef(tok)
-        tokens.next( )
-        return expr
+	if re.match(Lexer.identifier, tok):
+		expr = VarRef(tok)
+		tokens.next( )
+		return expr
 
 	if tok == "(":
 		tokens.next( )  # or match( tok )
@@ -197,34 +197,34 @@ def andExpr( ):
 
 ##### BUILD PARSE ROUTINES #####
 
-def parseStmtList(  ):
+def parseStmtList( tokens ):
     # create a list of statements, put into a subclass of Statement, return an object containing the list
-    """ gee = { Statement } """
+	""" gee = { Statement } """
 	stmtList = []
-    tok = tokens.peek( )
-    while tok is not None:
-        # need to store each statement in a list
+	tok = tokens.peek( )
+	while tok is not None:
+			# need to store each statement in a list
 		stmtList.append(parseStatement(tok))
 		tok = tokens.next()
-    return stmtList
+	return stmtList
 
 def parseStatement(token): # classifies the token as a subclass of statement.
-    """ statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
+	""" statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
 	if token == "if":
 		return parseIfStatement()
 	elif token == "while":
 		return parseWhileStatement()
-	elif re.match(Lexar.indentifier):
-		return parseAssign()
+	elif re.match(Lexer.identifier, token):
+		return assign()
 	else:
 		error("Invalid statement")
 		return
 
 def ifStatement():
-    """ ifStatement = "if" expression block   [ "else" block ] """
+	""" ifStatement = "if" expression block   [ "else" block ] """
 
 	tok = tokens.peek()
-	if debug: print("ifstatement: ", tok))
+	if debug: print("ifstatement: ", tok)
 	if tok == "if":
 		tokens.next()
 		expr = expr()
@@ -240,7 +240,7 @@ def whileStatement(  ):
     """ whileStatement = "while"  expression  block """
 
 def assign(  ):
-    """ assign = ident "=" expression  eoln """
+	""" assign = ident "=" expression  eoln """
 	tok = tokens.peek()
 	if debug: print("assign: ", tok)
 
@@ -255,19 +255,19 @@ def assign(  ):
 
 
 def block(  ):
-    """ block = ":" eoln indent stmtList undent """
+	""" block = ":" eoln indent stmtList undent """
 	tok = tokens.peek( )
 	if debug: print ("block: ", tok)
 
 	if tok == ":":
 		tok = tokens.next()
-		if tok = ";":
+		if tok == ";":
 			tok = tokens.next()
 			if tok == "@":
 				tok = tokens.next()
 				stmtList = parseStmtList()
 				tok = tokens.next()
-				if tok = "~":
+				if tok == "~":
 					return String(":;@" + str(stmtList) + "~")
 
 ################################
@@ -277,8 +277,8 @@ def parse( text ) :
 	tokens = Lexer( text )
 	# expr = addExpr( )
 	# print (str(expr))
-    stmtlist = parseStmtList( tokens )
-	print str(stmtlist)
+	stmtlist = parseStmtList( tokens )
+	print (str(stmtlist))
 	return
 
 
