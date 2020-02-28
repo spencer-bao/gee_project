@@ -33,18 +33,18 @@ class Number( Expression ):
 ##### BUILD CLASSES #####
 
 class String( Expression ):
-    def __init__(self, value):
-		self.value = value
+    def __init__(self, string):
+		self.string = string
 		
 	def __str__(self):
-		return str(self.value)
+		return str(self.string)
     
 class VarRef( Expression ):
-    def __init__(self, value):
-		self.value = value
+    def __init__(self, identifier):
+		self.identifier = identifier
 		
 	def __str__(self):
-		return str(self.value)
+		return str(self.identifier)
 
 ###########################
 
@@ -68,15 +68,20 @@ def factor( ):
 
 	tok = tokens.peek( )
 	if debug: print ("Factor: ", tok)
-	if re.match(Lexer.number, tok):
+
+	if re.match(Lexer.number, tok): #re.match(pattern, string) - if zero or more characters at the beginning of the string matches the pattern
 		expr = Number(tok)
 		tokens.next( )
+		return expr
+	if re.match(Lexer.string, tok):
+		expr = String(tok)
+		tokens.next()
 		return expr
     if re.match(Lexer.identifier, tok):
         expr = VarRef(tok)
         tokens.next( )
         return expr
-    if re.
+
 	if tok == "(":
 		tokens.next( )  # or match( tok )
 		expr = addExpr( )
@@ -227,6 +232,8 @@ def parseBlock(  ):
 def parse( text ) :
 	global tokens
 	tokens = Lexer( text )
+	# expr = addExpr( )
+	# print (str(expr))
     stmtlist = parseStmtList( tokens )
 	print str(stmtlist)
 	return
