@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-#Author:        Gavin Grossman 931000651
+#Author:        Gavin 931000651
 #Date Created:  2/20/2020
 
 import re, sys, string
