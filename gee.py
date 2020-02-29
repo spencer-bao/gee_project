@@ -4,20 +4,23 @@
 
 import re, sys, string
 
-debug = True
+debug = False
 dict = { }
 tokens = [ ]
 
-class Statement(object ):
+class Statement( object ):
 	def __str__(self):
 		return ""
 
-class WhileStatement(Statement):
+class WhileStatement( Statement ):
 	def __init__(self, expr, block):
 		self.expr = expr
 		self.block = block
+	
+	def __str__(self):
+		return "while" + str(self.expr) + str(self.block)
 
-class IfStatement(Statement):
+class IfStatement( Statement ):
 	def __init__(self, expr, if_block, else_block):
 		self.expr = expr
 		self.if_block = if_block
@@ -26,7 +29,7 @@ class IfStatement(Statement):
 	def __str__(self):
 		return "if" + str(if_block) + "else" + str(else_block)
 
-class ElseStatement(Statement):
+class ElseStatement( Statement ):
 	def __init__(self, identifier, expr):
 		self.identifier = identifier
 		self.expr = expr
@@ -98,7 +101,7 @@ def factor( ):
 
 	if re.match(Lexer.string, tok):
 		expr = String(tok)
-		tokens.next()
+		tokens.next( )
 		return expr
 
 	if re.match(Lexer.identifier, tok):
@@ -108,7 +111,7 @@ def factor( ):
 
 	if tok == "(":
 		tokens.next( )  # or match( tok )
-		expr = addExpr( )
+		expr = expression( )
 		tokens.peek( )
 		tok = match(")")
 		return expr
@@ -149,21 +152,6 @@ def addExpr( ):
 
 ##### BUILD PARSE ROUTINES #####
 
-def expr( ):
-	""" expression = andExpr { "or" andExpr } """
-
-	tok = tokens.peek( )
-	if debug: print ("expression: ", tok)
-	left = andExpr( )
-	tok = tokens.peek( )
-	while tok == "or":
-		tokens.next()
-		right = andExpr( )
-		left = BinaryExpr(tok, left, right)
-		tok = tokens.peek( )
-	return left
-
-
 def relationalExpr( ):
 	""" relationalExpr = addExpr [ relation addExpr ] """
 	""" relation    = "==" | "!=" | "<" | "<=" | ">" | ">=" """
@@ -172,7 +160,7 @@ def relationalExpr( ):
 	if debug: print ("relationalExpr: ", tok)
 	left = addExpr( )
 	tok = tokens.peek( )
-	if tok == "==" or tok == "!=" or tok == "<" or tok == "<=" or tok == ">" or tok == ">=":
+	while tok == "==" or tok == "!=" or tok == "<" or tok == "<=" or tok == ">" or tok == ">=":
 		tokens.next()
 		right = addExpr( )
 		left = BinaryExpr(tok, left, right)
@@ -193,6 +181,20 @@ def andExpr( ):
 		tok = tokens.peek( )
 	return left
 
+def expression( ):
+	""" expression = andExpr { "or" andExpr } """
+
+	tok = tokens.peek( )
+	if debug: print ("expression: ", tok)
+	left = andExpr( )
+	tok = tokens.peek( )
+	while tok == "or":
+		tokens.next()
+		right = andExpr( )
+		left = BinaryExpr(tok, left, right)
+		tok = tokens.peek( )
+	return left
+
 ################################
 
 ##### BUILD PARSE ROUTINES #####
@@ -200,9 +202,11 @@ def andExpr( ):
 def parseStmtList( tokens ):
     # create a list of statements, put into a subclass of Statement, return an object containing the list
 	""" gee = { Statement } """
+	print (tokens)
 	stmtList = []
 	tok = tokens.peek( )
 	while tok is not None:
+		print (tok + '  PLEASE HELP')
 			# need to store each statement in a list
 		stmtList.append(parseStatement(tok))
 		tok = tokens.next()
@@ -210,48 +214,68 @@ def parseStmtList( tokens ):
 
 def parseStatement(token): # classifies the token as a subclass of statement.
 	""" statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
+	if token == ';':
+		print ('YES')
+		token = tokens.next()
+		print (token + '   FU')
 	if token == "if":
+		print ('YES')
 		return parseIfStatement()
 	elif token == "while":
 		return parseWhileStatement()
-	elif re.match(Lexer.identifier, token):
-		return assign()
+	#elif re.match(Lexer.identifier, token):
+	#	return assign()
 	else:
-		error("Invalid statement")
-		return
+		#error("Invalid statement")
+		return parseAssign()
 
-def ifStatement():
+def parseIfStatement():
 	""" ifStatement = "if" expression block   [ "else" block ] """
 
 	tok = tokens.peek()
 	if debug: print("ifstatement: ", tok)
 	if tok == "if":
 		tokens.next()
-		expr = expr()
+		expres = expression()
 		tokens.next()
 		if_block = block()
 		tok = tokens.next()
 	if tok == "else":
 		else_block = block()
-	return ifstatement(expr, if_block, else_block)
+	else:
+		else_block = ''
+	return IfStatement(expres, if_block, else_block)
 
 
-def whileStatement(  ):
-    """ whileStatement = "while"  expression  block """
+def parseWhileStatement(  ):
+	""" whileStatement = "while"  expression  block """
 
-def assign(  ):
+	tok = tokens.peek()
+	if debug: print("whilestatement: ", tok)
+	if tok == "while":
+		tokens.next()
+		expres = expression()
+		tokens.next()
+		block = block()
+		tok = tokens.next()
+	return WhileStatement(expres, block)
+
+
+def parseAssign(  ):
 	""" assign = ident "=" expression  eoln """
 	tok = tokens.peek()
 	if debug: print("assign: ", tok)
-
-	if tok == "@":
+	
+	while tok == '@' or tok == '~':
+		tok = tokens.next
+	starter = tok
+	tok = tokens.next()
+	if tok == "=":
 		tok = tokens.next()
-		if tok == "=":
-			tok = tokens.next()
-			expression = expr()
-			tok = tokens.next()
-			if tok == ";":
-				return String("@=" + String(expression) + ";")
+		expres = expression()
+		tok = tokens.next()
+		#print ('= ' + starter + ' ' + str(expres))
+		return String("= " + starter + ' ' + str(expres))
 
 
 def block(  ):
