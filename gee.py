@@ -37,6 +37,17 @@ class AssignStatement( Statement ):
 	def __str__(self):
 		return str(identifier) + str(expr)
 
+class BlockStatement( Statement ):
+	def __init__(self, stmtList):
+		self.stmtList = stmtList
+	
+	def __str__(self):
+		print_list = ""
+		for stmt in stmtList:
+			print_list += str(stmt)
+		return print_list
+		
+
 #  Expression class and its subclasses
 class Expression( object ):
 	def __str__(self):
