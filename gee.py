@@ -18,7 +18,7 @@ class WhileStatement( Statement ):
 		self.block = block
 	
 	def __str__(self):
-		return "while" + str(self.expr) + str(self.block)
+		return "while " + str(self.expr) + '\n' + str(self.block) + 'endwhile'
 
 class IfStatement( Statement ):
 	def __init__(self, expr, if_block, else_block):
@@ -27,7 +27,7 @@ class IfStatement( Statement ):
 		self.else_block = else_block
 
 	def __str__(self):
-		return "if " + str(self.expr) + str(self.if_block) + "endif" + str(self.else_block)
+		return "if " + str(self.expr) + '\n' + str(self.if_block) + "endif" + str(self.else_block)
 
 class AssignStatement( Statement ):
 	def __init__(self, identifier, expr):
@@ -35,7 +35,7 @@ class AssignStatement( Statement ):
 		self.expr = expr
 	
 	def __str__(self):
-		return "=" + str(self.identifier) + str(self.expr)
+		return "= " + str(self.identifier) + ' ' + str(self.expr)
 
 class BlockStatement( Statement ):
 	def __init__(self, stmtList):
@@ -253,13 +253,11 @@ def parseWhileStatement(  ):
 
 	tok = tokens.peek()
 	if debug: print("whilestatement: ", tok)
-	if tok == "while":
-		tokens.next()
-		expres = expression()
-		tokens.next()
-		block = block()
-		tok = tokens.next()
-	return WhileStatement(expres, block)
+
+	match("while")
+	expres = expression()
+	blocker = block()
+	return WhileStatement(expres, blocker)
 
 
 def parseAssign(  ):
