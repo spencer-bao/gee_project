@@ -27,7 +27,7 @@ class IfStatement( Statement ):
 		self.else_block = else_block
 
 	def __str__(self):
-		return "if" + str(if_block) + "else" + str(else_block)
+		return "if " + str(self.expr) + str(self.if_block) + "endif" + str(self.else_block)
 
 class AssignStatement( Statement ):
 	def __init__(self, identifier, expr):
@@ -35,7 +35,7 @@ class AssignStatement( Statement ):
 		self.expr = expr
 	
 	def __str__(self):
-		return str(identifier) + str(expr)
+		return "=" + str(self.identifier) + str(self.expr)
 
 class BlockStatement( Statement ):
 	def __init__(self, stmtList):
@@ -43,8 +43,8 @@ class BlockStatement( Statement ):
 	
 	def __str__(self):
 		print_list = ""
-		for stmt in stmtList:
-			print_list += str(stmt)
+		for stmt in self.stmtList:
+			print_list += str(stmt) + "\n"
 		return print_list
 		
 
@@ -214,17 +214,14 @@ def parseStmtList( tokens ):
 	tok = tokens.peek( )
 	while tok is not None:
 		# need to store each statement in a list
-		tok = tokens.peek()
 		stmtList.append(parseStatement(tok))
-		
-		#tok = tokens.next()
+		tok = tokens.peek()
+
 	return stmtList
 
 def parseStatement(token): # classifies the token as a subclass of statement.
 	""" statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
-	# if token == '@' or token == '~': #?
-	# 	#token = tokens.next()
-	# 	pass
+
 	if token == "if":
 		return parseIfStatement()
 	elif token == "while":
@@ -240,18 +237,6 @@ def parseIfStatement():
 
 	tok = tokens.peek()
 	if debug: print("ifstatement: ", tok)
-
-	# if tok == "if":
-	# 	tokens.next()
-	# 	expres = expression()
-	# 	tokens.next()
-	# 	if_block = block()
-	# 	tok = tokens.next()
-	# if tok == "else":
-	# 	else_block = block()
-	# else:
-	# 	else_block = ''
-	# return IfStatement(expres, if_block, else_block)
 
 	match("if")
 	expr = expression()
@@ -281,15 +266,6 @@ def parseAssign(  ):
 	""" assign = ident "=" expression  eoln """
 	tok = tokens.peek()
 	if debug: print("assign: ", tok)
-	
-	# while tok == '@' or tok == '~':
-	# 	tok = tokens.next
-	# ident = tok
-	# tok = tokens.next()
-	# if tok == "=":
-	# 	tok = tokens.next()
-	# 	expres = expression()
-	# 	return AssignStatement(ident, expres)
 
 	# according to the notes, 
 	if re.match(Lexer.identifier, tok):
@@ -307,17 +283,6 @@ def block(  ):
 	tok = tokens.peek( )
 	if debug: print ("block: ", tok)
 
-	# if tok == ":":
-	# 	tok = tokens.next()
-	# 	if tok == ";":
-	# 		tok = tokens.next()
-	# 		if tok == "@":
-	# 			tok = tokens.next()
-	# 			stmtList = parseStmtList()
-	# 			tok = tokens.next()
-	# 			if tok == "~":
-	# 				return String(":;@" + str(stmtList) + "~")
-
 	match(":")
 	match(";")
 	match("@")
@@ -326,13 +291,11 @@ def block(  ):
 	tok = tokens.peek( )
 	#print(tok)
 	while tok != "~":
-
-		tok = tokens.peek()
-		print(tok)
 		stmtList.append(parseStatement(tok))
+		tok = tokens.peek()
 
 	match("~")
-	return stmtList
+	return BlockStatement(stmtList)
 
 
 	
@@ -345,7 +308,7 @@ def parse( text ) :
 	# expr = addExpr( )
 	# print (str(expr))
 	stmtlist = parseStmtList( tokens )
-	print (str(stmtlist))
+	print (BlockStatement(stmtlist))
 	return
 
 
