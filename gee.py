@@ -18,7 +18,7 @@ class WhileStatement( Statement ):
 		self.block = block
 	
 	def __str__(self):
-		return "while" + str(self.expr) + str(self.block)
+		return "while " + str(self.expr) + '\n' + str(self.block) + 'endwhile'
 
 class IfStatement( Statement ):
 	def __init__(self, expr, if_block, else_block):
@@ -264,7 +264,7 @@ def parseWhileStatement(  ):
 	match("while")
 	expr = expression()
 	while_block = block()
-	return WhileStatement(expr, block())
+	return WhileStatement(expr, while_block)
 
 
 def parseAssign(  ):
