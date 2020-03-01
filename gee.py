@@ -29,10 +29,13 @@ class IfStatement( Statement ):
 	def __str__(self):
 		return "if" + str(if_block) + "else" + str(else_block)
 
-class ElseStatement( Statement ):
+class AssignStatement( Statement ):
 	def __init__(self, identifier, expr):
 		self.identifier = identifier
 		self.expr = expr
+	
+	def __str__(self):
+		return str(identifier) + str(expr)
 
 #  Expression class and its subclasses
 class Expression( object ):
@@ -54,8 +57,6 @@ class Number( Expression ):
 		
 	def __str__(self):
 		return str(self.value)
-
-##### BUILD CLASSES #####
 
 class String( Expression ):
 	def __init__(self, string):
@@ -195,51 +196,60 @@ def expression( ):
 		tok = tokens.peek( )
 	return left
 
-################################
-
-##### BUILD PARSE ROUTINES #####
-
 def parseStmtList( tokens ):
     # create a list of statements, put into a subclass of Statement, return an object containing the list
 	""" gee = { Statement } """
 	stmtList = []
 	tok = tokens.peek( )
 	while tok is not None:
-			# need to store each statement in a list
+		# need to store each statement in a list
+		tok = tokens.peek()
 		stmtList.append(parseStatement(tok))
-		tok = tokens.next()
+		
+		#tok = tokens.next()
 	return stmtList
 
 def parseStatement(token): # classifies the token as a subclass of statement.
 	""" statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
-	if token == '@' or token == '~':
-		token = tokens.next()
+	# if token == '@' or token == '~': #?
+	# 	#token = tokens.next()
+	# 	pass
 	if token == "if":
 		return parseIfStatement()
 	elif token == "while":
 		return parseWhileStatement()
-	#elif re.match(Lexer.identifier, token):
-	#	return assign()
-	else:
-		#error("Invalid statement")
+	elif re.match(Lexer.identifier, token):
 		return parseAssign()
+	else:
+		error("Invalid statement")
+		#return parseAssign()
 
 def parseIfStatement():
 	""" ifStatement = "if" expression block   [ "else" block ] """
 
 	tok = tokens.peek()
 	if debug: print("ifstatement: ", tok)
-	if tok == "if":
-		tokens.next()
-		expres = expression()
-		tokens.next()
-		if_block = block()
-		tok = tokens.next()
+
+	# if tok == "if":
+	# 	tokens.next()
+	# 	expres = expression()
+	# 	tokens.next()
+	# 	if_block = block()
+	# 	tok = tokens.next()
+	# if tok == "else":
+	# 	else_block = block()
+	# else:
+	# 	else_block = ''
+	# return IfStatement(expres, if_block, else_block)
+
+	match("if")
+	expr = expression()
+	if_block = block()
 	if tok == "else":
 		else_block = block()
-	else:
-		else_block = ''
-	return IfStatement(expres, if_block, else_block)
+	else: 
+		else_block = ""
+	return IfStatement(expr, if_block, else_block)
 
 
 def parseWhileStatement(  ):
@@ -261,14 +271,24 @@ def parseAssign(  ):
 	tok = tokens.peek()
 	if debug: print("assign: ", tok)
 	
-	while tok == '@' or tok == '~':
-		tok = tokens.next
-	starter = tok
-	tok = tokens.next()
-	if tok == "=":
-		tok = tokens.next()
-		expres = expression()
-		return String("= " + starter + ' ' + str(expres))
+	# while tok == '@' or tok == '~':
+	# 	tok = tokens.next
+	# ident = tok
+	# tok = tokens.next()
+	# if tok == "=":
+	# 	tok = tokens.next()
+	# 	expres = expression()
+	# 	return AssignStatement(ident, expres)
+
+	# according to the notes, 
+	if re.match(Lexer.identifier, tok):
+		target = VarRef(tok)
+		tokens.next()
+	match("=")
+	source = expression()
+	match(";")
+	return AssignStatement(target, source)
+
 
 
 def block(  ):
@@ -276,16 +296,35 @@ def block(  ):
 	tok = tokens.peek( )
 	if debug: print ("block: ", tok)
 
-	if tok == ":":
-		tok = tokens.next()
-		if tok == ";":
-			tok = tokens.next()
-			if tok == "@":
-				tok = tokens.next()
-				stmtList = parseStmtList()
-				tok = tokens.next()
-				if tok == "~":
-					return String(":;@" + str(stmtList) + "~")
+	# if tok == ":":
+	# 	tok = tokens.next()
+	# 	if tok == ";":
+	# 		tok = tokens.next()
+	# 		if tok == "@":
+	# 			tok = tokens.next()
+	# 			stmtList = parseStmtList()
+	# 			tok = tokens.next()
+	# 			if tok == "~":
+	# 				return String(":;@" + str(stmtList) + "~")
+
+	match(":")
+	match(";")
+	match("@")
+	
+	stmtList = []
+	tok = tokens.peek( )
+	#print(tok)
+	while tok != "~":
+
+		tok = tokens.peek()
+		print(tok)
+		stmtList.append(parseStatement(tok))
+
+	match("~")
+	return stmtList
+
+
+	
 
 ################################
 
