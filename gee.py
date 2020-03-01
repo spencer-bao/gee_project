@@ -4,7 +4,7 @@
 
 import re, sys, string
 
-debug = False
+debug = True
 dict = { }
 tokens = [ ]
 
@@ -202,11 +202,9 @@ def expression( ):
 def parseStmtList( tokens ):
     # create a list of statements, put into a subclass of Statement, return an object containing the list
 	""" gee = { Statement } """
-	print (tokens)
 	stmtList = []
 	tok = tokens.peek( )
 	while tok is not None:
-		print (tok + '  PLEASE HELP')
 			# need to store each statement in a list
 		stmtList.append(parseStatement(tok))
 		tok = tokens.next()
@@ -214,12 +212,9 @@ def parseStmtList( tokens ):
 
 def parseStatement(token): # classifies the token as a subclass of statement.
 	""" statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
-	if token == ';':
-		print ('YES')
+	if token == '@' or token == '~':
 		token = tokens.next()
-		print (token + '   FU')
 	if token == "if":
-		print ('YES')
 		return parseIfStatement()
 	elif token == "while":
 		return parseWhileStatement()
@@ -273,8 +268,6 @@ def parseAssign(  ):
 	if tok == "=":
 		tok = tokens.next()
 		expres = expression()
-		tok = tokens.next()
-		#print ('= ' + starter + ' ' + str(expres))
 		return String("= " + starter + ' ' + str(expres))
 
 
