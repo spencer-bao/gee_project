@@ -1,5 +1,5 @@
 #! /usr/bin/python3
-#Author:        Gavin 931000651
+#Authors:        Gavin Grossman 931000651 & Spencer Bao
 #Date Created:  2/20/2020
 
 import re, sys, string
@@ -27,7 +27,10 @@ class IfStatement( Statement ):
 		self.else_block = else_block
 
 	def __str__(self):
-		return "if " + str(self.expr) + '\n' + str(self.if_block) + "endif" + str(self.else_block)
+		else_state = ''
+		if self.else_block:
+			else_state = 'else ' + '\n' + str(self.else_block)
+		return "if " + str(self.expr) + '\n' + str(self.if_block) + else_state + "endif" 
 
 class AssignStatement( Statement ):
 	def __init__(self, identifier, expr):
@@ -241,7 +244,9 @@ def parseIfStatement():
 	match("if")
 	expr = expression()
 	if_block = block()
+	tok = tokens.peek()
 	if tok == "else":
+		match("else")
 		else_block = block()
 	else: 
 		else_block = ""
@@ -287,16 +292,11 @@ def block(  ):
 	
 	stmtList = []
 	tok = tokens.peek( )
-	#print(tok)
 	while tok != "~":
 		stmtList.append(parseStatement(tok))
 		tok = tokens.peek()
-
 	match("~")
 	return BlockStatement(stmtList)
-
-
-	
 
 ################################
 
