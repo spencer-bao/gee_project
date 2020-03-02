@@ -4,15 +4,15 @@
 
 import re, sys, string
 
-debug = True
+debug = False
 dict = { }
 tokens = [ ]
 
-class Statement( object ):
+class Statement( object ): #statement superclass
 	def __str__(self):
 		return ""
 
-class WhileStatement( Statement ):
+class WhileStatement( Statement ): #statement subclasses they create the string representations for the different statements 
 	def __init__(self, expr, block):
 		self.expr = expr
 		self.block = block
@@ -56,7 +56,7 @@ class Expression( object ):
 	def __str__(self):
 		return "" 
 	
-class BinaryExpr( Expression ):
+class BinaryExpr( Expression ): # creates a binary tree since the expressions can derive many other expressions
 	def __init__(self, op, left, right):
 		self.op = op
 		self.left = left
@@ -158,7 +158,7 @@ def addExpr( ):
 	if debug: print ("addExpr: ", tok)
 	left = term( )
 	tok = tokens.peek( )
-	while tok == "+" or tok == "-":
+	while tok == "+" or tok == "-": # extends branches for multiple terms 
 		tokens.next()
 		right = term( )
 		left = BinaryExpr(tok, left, right)
@@ -218,14 +218,14 @@ def parseStmtList( tokens ):
 	while tok is not None:
 		# need to store each statement in a list
 		stmtList.append(parseStatement(tok))
-		tok = tokens.peek()
+		tok = tokens.peek() 
 
 	return stmtList
 
 def parseStatement(token): # classifies the token as a subclass of statement.
 	""" statement = parseIfStatement |  parseWhileStatement  |  parseAssign """
 
-	if token == "if":
+	if token == "if": #checks what type of statement and sends it to the right function
 		return parseIfStatement()
 	elif token == "while":
 		return parseWhileStatement()
@@ -233,7 +233,6 @@ def parseStatement(token): # classifies the token as a subclass of statement.
 		return parseAssign()
 	else:
 		error("Invalid statement")
-		#return parseAssign()
 
 def parseIfStatement():
 	""" ifStatement = "if" expression block   [ "else" block ] """
@@ -241,8 +240,8 @@ def parseIfStatement():
 	tok = tokens.peek()
 	if debug: print("ifstatement: ", tok)
 
-	match("if")
-	expr = expression()
+	match("if") # statement has to match specific strings to be a valid ifStatement
+	expr = expression() # all ifStatements follow the grammar and we can pull the expression token
 	if_block = block()
 	tok = tokens.peek()
 	if tok == "else":
@@ -250,7 +249,7 @@ def parseIfStatement():
 		else_block = block()
 	else: 
 		else_block = ""
-	return IfStatement(expr, if_block, else_block)
+	return IfStatement(expr, if_block, else_block) # returns with parts of the ifStatement that can be used to print the output
 
 
 def parseWhileStatement(  ):
@@ -258,13 +257,6 @@ def parseWhileStatement(  ):
 
 	tok = tokens.peek()
 	if debug: print("whilestatement: ", tok)
-	# if tok == "while":
-	# 	tokens.next()
-	# 	expres = expression()
-	# 	tokens.next()
-	# 	end_block = block()
-	# 	tok = tokens.next()
-	# return WhileStatement(expres, end_block)
 
 	match("while")
 	expr = expression()
@@ -297,7 +289,7 @@ def block(  ):
 	match(";")
 	match("@")
 	
-	stmtList = []
+	stmtList = [] # similar to the parseStmtList function but stops when it sees the "~"
 	tok = tokens.peek( )
 	while tok != "~":
 		stmtList.append(parseStatement(tok))
